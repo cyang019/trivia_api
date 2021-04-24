@@ -76,7 +76,7 @@ This README is missing documentation of your endpoints. Below is an example for 
 | Method &nbsp; &nbsp; |    Syntax   |
 | :----- | :----- |
 | GET   | '/categories' |
-| GET   | '/categories/\<int:category_id>/questions' |
+| GET   | '/categories/\<int:category_id>/questions?page=<page_number>' |
 | GET   | '/questions?page=<page_number>' |
 | DELETE| '/questions/\<int:question_id>' |
 | POST  | '/categories/\<int:category_id>/questions' |
@@ -88,11 +88,11 @@ This README is missing documentation of your endpoints. Below is an example for 
 - Fetches a dictionary of categories in which the keys are the ids and the value is the corresponding string of the category
 - Request Arguments: None
 - Response: 
-  + A completed request will return a 200 status code, and then return a json object.
+  + A completed request will return a **200** status code, and then return a json object.
   Example:
-  ```python
+  ```javascript
   {
-    'success': True,
+    'success': true,
     'categories': [
       {
         'id': 1,
@@ -110,21 +110,228 @@ This README is missing documentation of your endpoints. Below is an example for 
     'total_categories': 3
   }
   ``` 
-{'1' : "Science",
-'2' : "Art",
-'3' : "Geography",
-'4' : "History",
-'5' : "Entertainment",
-'6' : "Sports"}
+  + If no category was found, the request will return a **404** status code.
 
-```
+#### GET '/categories/<int:category_id>/questions?page=<page_number>'
+- Fetches questions within a specified category.
+- Request Arguments: **category_id**
+- Response: 
+  + A completed request will return a **200** status code. Example json object for return:
+  ```javascript
+  {
+    "currentCategory": 1, 
+    "questions": [
+      {
+        "answer": "The Liver", 
+        "category": 1, 
+        "difficulty": 4, 
+        "id": 20, 
+        "question": "What is the heaviest organ in the human body?"
+      }, 
+      {
+        "answer": "Alexander Fleming", 
+        "category": 1, 
+        "difficulty": 3, 
+        "id": 21, 
+        "question": "Who discovered penicillin?"
+      }, 
+      {
+        "answer": "Blood", 
+        "category": 1, 
+        "difficulty": 4, 
+        "id": 22, 
+        "question": "Hematology is a branch of medicine involving the study of what?"
+      }
+    ], 
+    "success": true, 
+    "totalQuestions": 3
+  }
+  ``` 
 
+#### GET '/questions?page=<page_number>'
+- Fetches questions on a page (10 questions per page).
+- Request Arguments: None
+- Response: 
+  + A completed request will return a **200** status code. Example json object for return:
+  ```javascript
+  {
+    "categories": [
+      {
+        "id": 1, 
+        "type": "Science"
+      }, 
+      {
+        "id": 2, 
+        "type": "Art"
+      }, 
+      {
+        "id": 3, 
+        "type": "Geography"
+      }, 
+      {
+        "id": 4, 
+        "type": "History"
+      }, 
+      {
+        "id": 5, 
+        "type": "Entertainment"
+      }, 
+      {
+        "id": 6, 
+        "type": "Sports"
+      }
+    ], 
+    "current_category": 3, 
+    "questions": [
+      {
+        "answer": "Agra", 
+        "category": 3, 
+        "difficulty": 2, 
+        "id": 15, 
+        "question": "The Taj Mahal is located in which Indian city?"
+      }, 
+      {
+        "answer": "Escher", 
+        "category": 2, 
+        "difficulty": 1, 
+        "id": 16, 
+        "question": "Which Dutch graphic artist\u2013initials M C was a creator of optical illusions?"
+      }, 
+      {
+        "answer": "Mona Lisa", 
+        "category": 2, 
+        "difficulty": 3, 
+        "id": 17, 
+        "question": "La Giaconda is better known as what?"
+      }, 
+      {
+        "answer": "One", 
+        "category": 2, 
+        "difficulty": 4, 
+        "id": 18, 
+        "question": "How many paintings did Van Gogh sell in his lifetime?"
+      }, 
+      {
+        "answer": "Jackson Pollock", 
+        "category": 2, 
+        "difficulty": 2, 
+        "id": 19, 
+        "question": "Which American artist was a pioneer of Abstract Expressionism, and a leading exponent of action painting?"
+      }, 
+      {
+        "answer": "The Liver", 
+        "category": 1, 
+        "difficulty": 4, 
+        "id": 20, 
+        "question": "What is the heaviest organ in the human body?"
+      }, 
+      {
+        "answer": "Alexander Fleming", 
+        "category": 1, 
+        "difficulty": 3, 
+        "id": 21, 
+        "question": "Who discovered penicillin?"
+      }, 
+      {
+        "answer": "Blood", 
+        "category": 1, 
+        "difficulty": 4, 
+        "id": 22, 
+        "question": "Hematology is a branch of medicine involving the study of what?"
+      }, 
+      {
+        "answer": "Scarab", 
+        "category": 4, 
+        "difficulty": 4, 
+        "id": 23, 
+        "question": "Which dung beetle was worshipped by the ancient Egyptians?"
+      }
+    ], 
+    "success": true, 
+    "total_questions": 19
+  }
+  ``` 
+
+#### DELETE '/questions/<int:question_id>'
+- Delete a question with specified question_id.
+- Request Arguments: **question_id**
+- Response: 
+  + A completed request will return a **200** status code. Example json object for return:
+  ```javascript
+  {
+    "deleted": 2,
+    "success": true
+  }
+  ```
+  + If the question_id is not found, will return a **404** status code.
+
+#### POST '/categories/<int:category_id>/questions'
+- Post a new question along with answer, category and difficulty socre.
+- Request Argument: **category_id**
+- Required entries within request body:
+  + question, str
+  + answer, str
+  + difficulty, int
+  + category id, int
+- Response: 
+  + A completed request will return a **200** status code. Example json object for return:
+  ```javascript
+  { "success": true }
+  ```
+  + Upon failed creation, will return a **422** status code.
+
+#### POST '/questions'
+- Fetches questions on a page (10 questions per page) based on a search term.
+- Request Arguments: None
+- Request body:
+  + searchTerm, str
+- Response: 
+  + A completed request will return a **200** status code. Example json object for return:
+  ```javascript
+  {
+    "currentCategory": {
+      "id": 5, 
+      "type": "Entertainment"
+    }, 
+    "questions": [
+      {
+        "answer": "Maya Angelou", 
+        "category": 4, 
+        "difficulty": 2, 
+        "id": 5, 
+        "question": "Whose autobiography is entitled 'I Know Why the Caged Bird Sings'?"
+      }
+    ], 
+    "success": true, 
+    "totalQuestions": 1
+  }
+  ```
+
+
+#### POST '/quizzes'
+- Fetches questions to play the quiz. This endpoint will take category and previous question parameters and return a random questions within the given category, if provided. The returned question will not be one of the previous questions.
+- Request Arguments: None
+- Request Body:
+  quiz_category, int
+  previous_questions, list of int
+- Response: 
+  + A completed request will return a **200** status code. Example json object for return:
+  ```javascript
+  {
+    "question": {
+      "answer": "Alexander Fleming", 
+      "category": 1, 
+      "difficulty": 3, 
+      "id": 21, 
+      "question": "Who discovered penicillin?"
+    }, 
+    "success": true
+  }
+  ```
+  + Upon failed creation, will return a **422** status code.
 
 ## Testing
 To run the tests, run
-```
-dropdb trivia_test
-createdb trivia_test
-psql trivia_test < trivia.psql
-python test_flaskr.py
+```bash
+./test_trivia.sh
 ```
