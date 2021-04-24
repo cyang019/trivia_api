@@ -331,7 +331,7 @@ This README is missing documentation of your endpoints. Below is an example for 
   + Upon failed creation, will return a **422** status code.
 
 ## Testing
-To run the tests, run
+To run the tests, execute the script below:
 ```bash
 ./test_trivia.sh
 ```
