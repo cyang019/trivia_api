@@ -81,6 +81,7 @@ def create_app(test_config=None):
 
     category_selection = Category.query.order_by(Category.id).all()
     categories = [category.format() for category in category_selection]
+    current_category = Category.query.get(current_questions[0]['category']).format()
 
     return jsonify({
       'success': True,
@@ -97,6 +98,17 @@ def create_app(test_config=None):
   TEST: When you click the trash icon next to a question, the question will be removed.
   This removal will persist in the database and when you refresh the page. 
   '''
+  @app.route('/questions/<int:question_id>', methods=['DELETE'])
+  def delete_question(question_id):
+    question = Question.query.filter(Question.id == question_id).one_or_none()
+    if question is None:
+      abort(404)
+    
+    question.delete()
+    return jsonify({
+      'success': True,
+      'deleted': question_id
+    })
 
   '''
   @TODO: 
@@ -108,6 +120,40 @@ def create_app(test_config=None):
   the form will clear and the question will appear at the end of the last page
   of the questions list in the "List" tab.  
   '''
+  @app.route('/categories/<int:category_id>/questions', methods=['POST'])
+  def create_question(category_id):
+    body = request.get_json()
+    new_question = body.get('question', None)
+    new_answer = body.get('answer', None)
+    new_difficulty = body.get('difficulty', None)
+    new_category = category_id
+
+    error = False
+    try:
+      if new_difficulty is None:
+        raise ValueError(f'Need difficulty for the question, saw None.')
+      category = Category.query.get(category_id)
+      if category is None:
+        category = Category(type=new_category)
+        db.session.add(category)
+        
+      question = Question(question=new_question, answer=new_answer,
+      category=category.id, difficulty=new_difficulty)
+      question.insert()
+      db.session.commit()
+    except Exception as e:
+      error = True
+      print(f'error creating new question: {e}')
+      db.session.rollback()
+    finally:
+      db.session.close()
+
+    if error:
+      abort(422)
+
+    return jsonify({
+      'success': True
+    })
 
   '''
   @TODO: 
@@ -119,6 +165,19 @@ def create_app(test_config=None):
   only question that include that string within their question. 
   Try using the word "title" to start. 
   '''
+  @app.route('/questions', methods=['POST'])
+  def search_question():
+    body = request.get_json()
+    search_term = body.get('searchTerm', '')
+    questions = Question.query.order_by(Question.id).filter(Question.question.ilike('%{}%'.format(search_term)))
+    current_questions, total_cnt = paginate_questions(request, questions)
+    current_category = Category.query.get(current_questions[0]['id']).format()
+    return jsonify({
+      'success': True,
+      'questions': current_questions,
+      'totalQuestions': total_cnt,
+      'currentCategory': current_category
+    })
 
   '''
   @TODO: 
@@ -128,6 +187,17 @@ def create_app(test_config=None):
   categories in the left column will cause only questions of that 
   category to be shown. 
   '''
+  @app.route('/categories/<int:category_id>/questions', methods=['GET'])
+  def retrieve_category_questions(category_id):
+    selection = Question.query.filter(Question.category == category_id)
+    current_questions, count = paginate_questions(request, selection)
+
+    return jsonify({
+      'success': True,
+      'questions': current_questions,
+      'totalQuestions': count,
+      'currentCategory': category_id
+    })
 
 
   '''
@@ -141,6 +211,30 @@ def create_app(test_config=None):
   one question at a time is displayed, the user is allowed to answer
   and shown whether they were correct or not. 
   '''
+  @app.route('/quizzes', methods=['POST'])
+  def retrieve_next_question():
+    body = request.get_json()
+    quiz_category = body.get('quiz_category', None)
+    if quiz_category is None:
+      abort(422)
+    previous_question_ids = body.get('previous_questions', None)
+    if previous_question_ids is None:
+      previous_question_ids = []
+    
+    questions = Question.query.filter(
+      Question.category==quiz_category,
+      ~Question.id.in_(previous_question_ids)
+    ).all()
+    question = None
+    if len(questions) > 0:
+      choice = random.choice(questions)
+      question = choice.format()
+
+    return jsonify({
+      'success': True,
+      'question': question
+    })
+    
 
   '''
   @TODO: 

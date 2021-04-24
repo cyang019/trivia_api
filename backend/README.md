@@ -69,17 +69,47 @@ One note before you delve into your tasks: for each endpoint you are expected to
 REVIEW_COMMENT
 ```
 This README is missing documentation of your endpoints. Below is an example for your endpoint to get all categories. Please use it as a reference for creating your documentation and resubmit your code. 
+```
 
-Endpoints
-GET '/categories'
-GET ...
-POST ...
-DELETE ...
+### Endpoints
 
-GET '/categories'
+| Method &nbsp; &nbsp; |    Syntax   |
+| :----- | :----- |
+| GET   | '/categories' |
+| GET   | '/categories/\<int:category_id>/questions' |
+| GET   | '/questions?page=<page_number>' |
+| DELETE| '/questions/\<int:question_id>' |
+| POST  | '/categories/\<int:category_id>/questions' |
+| POST  | '/questions' |
+| POST  | '/quizzes' |
+
+
+#### GET '/categories'
 - Fetches a dictionary of categories in which the keys are the ids and the value is the corresponding string of the category
 - Request Arguments: None
-- Returns: An object with a single key, categories, that contains a object of id: category_string key:value pairs. 
+- Response: 
+  + A completed request will return a 200 status code, and then return a json object.
+  Example:
+  ```python
+  {
+    'success': True,
+    'categories': [
+      {
+        'id': 1,
+        'type': 'Science'
+      },
+      {
+        'id': 2,
+        'type': 'Art'
+      },
+      {
+        'id': 3,
+        'type': 'Geography'
+      }
+    ],
+    'total_categories': 3
+  }
+  ``` 
 {'1' : "Science",
 '2' : "Art",
 '3' : "Geography",
