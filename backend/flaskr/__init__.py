@@ -46,7 +46,11 @@ def create_app(test_config=None):
   @app.route('/categories')
   def retrieve_categories():
     selections = Category.query.order_by(Category.id).all()
-    categories = [selection.format() for selection in selections]
+    # categories = [selection.format() for selection in selections]
+    categories = {}
+    for selection in selections:
+      formatted = selection.format()
+      categories[formatted['id']] = formatted['type']
 
     db.session.close()
     
@@ -80,15 +84,20 @@ def create_app(test_config=None):
       abort(404)
 
     category_selection = Category.query.order_by(Category.id).all()
-    categories = [category.format() for category in category_selection]
-    current_category = Category.query.get(current_questions[0]['category']).format()
+    # categories = [category.format() for category in category_selection]
+    categories = {}
+    for choice in category_selection:
+      obj = choice.format()
+      categories[obj['id']] = obj['type']
+    current_category = current_questions[0]['category']
+    # current_category = Category.query.get(current_questions[0]['category']).format()
 
     return jsonify({
       'success': True,
       'questions': current_questions,
       'total_questions': total_questions_count,
       'categories': categories,
-      'current_category': current_questions[0]['category']
+      'current_category': current_category
     })
 
   '''
@@ -171,7 +180,8 @@ def create_app(test_config=None):
     search_term = body.get('searchTerm', '')
     questions = Question.query.order_by(Question.id).filter(Question.question.ilike('%{}%'.format(search_term)))
     current_questions, total_cnt = paginate_questions(request, questions)
-    current_category = Category.query.get(current_questions[0]['id']).format()
+    # current_category = Category.query(current_questions[0]['category']).format()
+    current_category = current_questions[0]['category']
     return jsonify({
       'success': True,
       'questions': current_questions,
@@ -191,7 +201,7 @@ def create_app(test_config=None):
   def retrieve_category_questions(category_id):
     selection = Question.query.filter(Question.category == category_id)
     current_questions, count = paginate_questions(request, selection)
-
+    # current_category = Category.query.get(category_id).format()
     return jsonify({
       'success': True,
       'questions': current_questions,
@@ -215,6 +225,7 @@ def create_app(test_config=None):
   def retrieve_next_question():
     body = request.get_json()
     quiz_category = body.get('quiz_category', None)
+    print(f'quiz_category: {quiz_category}')
     if quiz_category is None:
       abort(422)
     previous_question_ids = body.get('previous_questions', None)
@@ -222,9 +233,12 @@ def create_app(test_config=None):
       previous_question_ids = []
     
     questions = Question.query.filter(
-      Question.category==quiz_category,
+      Question.category==quiz_category['id'],
       ~Question.id.in_(previous_question_ids)
     ).all()
+    if len(questions) == 0 and (quiz_category['type'] == 'click'):
+      # ALL categories
+      questions = Question.query.filter(~Question.id.in_(previous_question_ids)).all()
     question = None
     if len(questions) > 0:
       choice = random.choice(questions)
