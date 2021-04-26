@@ -355,9 +355,13 @@ This README is missing documentation of your endpoints. Below is an example for 
 ### Errors
 
 400 -- Bad request
+
 404 -- Not found
+
 422 -- Not processable
+
 500 -- Internal Server Error
+
 
 Sample response
 ```javascript
