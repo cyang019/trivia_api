@@ -1,11 +1,9 @@
 import sys
 import os
-sys.path.insert(0, os.path.dirname(__file__))
-
 import unittest
 import json
 from flask_sqlalchemy import SQLAlchemy
-
+sys.path.insert(0, os.path.dirname(__file__))
 from flaskr import create_app, QUESTIONS_PER_PAGE
 from models import setup_db, Question, Category
 
@@ -18,7 +16,8 @@ class TriviaTestCase(unittest.TestCase):
         self.app = create_app()
         self.client = self.app.test_client
         self.database_name = "trivia_test"
-        self.database_path = "postgresql://{}/{}".format('localhost:5432', self.database_name)
+        self.database_path = "postgresql://{}/{}".format(
+            'localhost:5432', self.database_name)
         setup_db(self.app, self.database_path)
 
         # binds the app to the current context
@@ -27,7 +26,7 @@ class TriviaTestCase(unittest.TestCase):
             self.db.init_app(self.app)
             # create all tables
             self.db.create_all()
-    
+
     def tearDown(self):
         """Executed after reach test"""
         pass
@@ -42,7 +41,8 @@ class TriviaTestCase(unittest.TestCase):
             raise NotImplementedError
     """
     TODO
-    Write at least one test for each test for successful operation and for expected errors.
+    Write at least one test for each test for successful
+    operation and for expected errors.
     """
     def test_retrieve_categories(self):
         res = self.client().get('/categories')
@@ -70,7 +70,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['success'], False)
         self.assertEqual(data['message'], 'resource not found')
         self.assertEqual(data['error'], 404)
-    
+
     def test_delete_question(self):
         res = self.client().delete('/questions/2')
         data = json.loads(res.data)
@@ -87,20 +87,21 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['error'], 404)
 
     def test_create_question(self):
-        res = self.client().post('categories/1/questions',
+        res = self.client().post(
+            'categories/1/questions',
             json={
                 "question": "Is electron a fermion or a boson?",
                 "answer": "It's a fermion.",
                 "difficulty": 3
-            }
-        )
+            })
         data = json.loads(res.data)
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
 
     def test_422_create_question(self):
-        res = self.client().post('categories/2/questions',
-            json ={
+        res = self.client().post(
+            'categories/2/questions',
+            json={
                 'question': 'haha..',
                 'answer': 'what?'
             }
@@ -112,7 +113,8 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['message'], 'unprocessable')
 
     def test_search_question(self):
-        res = self.client().post('/questions',
+        res = self.client().post(
+            '/questions',
             json={
                 'searchTerm': 'what'
             }
@@ -140,7 +142,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
         self.assertTrue(data['question']['id'])
-    
+
     def test_next_quiz_question_no_previous(self):
         res = self.client().post('/quizzes', json={
             "quiz_category": {"id": 2, "type": "Art"}

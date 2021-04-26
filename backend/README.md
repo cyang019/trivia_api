@@ -352,6 +352,22 @@ This README is missing documentation of your endpoints. Below is an example for 
   ```
   + Upon failed creation, will return a **422** status code.
 
+### Errors
+
+400 -- Bad request
+404 -- Not found
+422 -- Not processable
+500 -- Internal Server Error
+
+Sample response
+```javascript
+{
+  "error": 422, 
+  "message": "unprocessable", 
+  "success": false
+}
+```
+
 ## Testing
 To run the tests, execute the script below:
 ```bash
